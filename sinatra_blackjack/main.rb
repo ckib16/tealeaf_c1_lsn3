@@ -6,7 +6,7 @@ set :sessions, true
 
 get '/' do
   if session[:player_name]
-    # progress to the game
+    redirect '/game'
   else
     redirect '/new_player'
   end
@@ -16,31 +16,21 @@ get '/new_player' do
   erb :new_player
 end
 
-# practice lesson code below
-get '/home' do
-  "I'm the home page biatch!!"
+post '/new_player' do
+  session[:player_name] = params[:player_name]
+  redirect '/game'
 end
 
-get '/lesson' do
-  "I've rendered text like the lesson asked me to"
-end
+get '/game' do
+   suits = ['H', 'D', 'C', 'S']
+   values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+   session[:deck] = suits.product(values).shuffle!
 
-get '/template' do
-  erb :my_template
-end
-
-get '/nested_template' do
-  erb :"users/profile"
-end
-
-get '/form' do
-  erb :form
-end
-
-post '/myaction' do
-  puts params['username']
-end
-
-get '/new_game' do
-  "This will start a new game"
+   session[:dealer_cards] = []
+   session[:player_cards] = []
+   session[:dealer_cards] << session[:deck].pop
+   session[:player_cards] << session[:deck].pop
+   session[:dealer_cards] << session[:deck].pop
+   session[:player_cards] << session[:deck].pop
+  erb :game
 end

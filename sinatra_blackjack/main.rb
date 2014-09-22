@@ -1,8 +1,35 @@
 require 'rubygems'
 require 'sinatra'
 
-set :sessions, true
+use Rack::Session::Cookie, :key => 'rack.session',
+                           :path => '/',
+                           :secret => 'lava_lamp' 
 
+helpers do
+  def calculate_total(cards)
+    arr = cards.map {|element| element[1]}
+
+    total = 0
+    arr.each do |a|
+      if a == 'A'
+        total += 11
+      else
+        total += a.to_i == 0 ? 10 : a.to_i
+      end
+    end
+
+    arr.select{|element| element =='A'}.count.times do
+      break if total <= 21
+      total -= 10
+    end
+  
+    total
+  end
+end
+
+before do
+  @show_hit_or_stay_buttons = true
+end
 
 get '/' do
   if session[:player_name]
@@ -32,5 +59,22 @@ get '/game' do
    session[:player_cards] << session[:deck].pop
    session[:dealer_cards] << session[:deck].pop
    session[:player_cards] << session[:deck].pop
+  erb :game
+end
+
+post '/game/player/hit' do
+  session[:player_cards] << session[:deck].pop
+  if calculate_total(session[:player_cards]) > 21
+    @error = "Sorry, you busted."
+    @show_hit_or_stay_buttons = false
+  end
+
+  erb :game
+end
+
+post '/game/player/stay' do
+  @success = "You chose to stay"
+  @show_hit_or_stay_buttons = false
+
   erb :game
 end

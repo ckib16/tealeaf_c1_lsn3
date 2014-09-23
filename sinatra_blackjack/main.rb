@@ -77,4 +77,5 @@ post '/game/player/stay' do
   @show_hit_or_stay_buttons = false
 
   erb :game
+
 end

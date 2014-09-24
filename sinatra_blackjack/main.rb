@@ -26,7 +26,6 @@ helpers do
     total
   end
 
-
   def card_image(card)
     suit = case card[0]
       when 'H' then 'hearts'
@@ -107,7 +106,46 @@ end
 post '/game/player/stay' do
   @success = "#{session[:player_name]} has chosen to stay"
   @show_hit_or_stay_buttons = false
+  redirect '/game/dealer'
+end
+
+get '/game/dealer' do
+  @show_hit_or_stay_buttons = false
+
+  dealer_total = calculate_total(session[:dealer_cards])
+  if dealer_total == 21
+    @error = "Sorry, looks like the dealer hit Blackjack..."
+  elsif dealer_total > 21
+    @success = "Dealer busts. You win!"
+  elsif dealer_total >= 17
+    #dealer stays
+    redirect '/game/compare'
+  else 
+    #dealer hits
+    @show_dealer_hit_button = true
+  end
+      
+  erb :game  
+end
+
+post '/game/dealer/hit' do
+  session[:dealer_cards] << session[:deck].pop
+  redirect '/game/dealer'
+end
+
+get '/game/compare' do
+  @show_hit_or_stay_buttons = false
+
+  player_total = calculate_total(session[:player_cards])
+  dealer_total = calculate_total(session[:dealer_cards])
+
+  if player_total < dealer_total
+    @error = "Sorry, you lose."
+  elsif player_total > dealer_total
+    @success = "Congrats, you win the game."
+  else
+    @success = "It's a push! Dealer and Player have the same score."
+  end
 
   erb :game
-
 end

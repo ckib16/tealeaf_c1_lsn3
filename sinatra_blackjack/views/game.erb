@@ -5,7 +5,7 @@
 <% if @play_again %>
   <p>
     <strong>Play another game?</strong>
-    <a href="/game" class = 'btn btn-primary'>Yes</a>
+    <a href="/bet" class = 'btn btn-primary'>Yes</a>
     <a href="/game_over" class = 'btn'>No</a>
   </p>
 <% end %>
@@ -41,6 +41,10 @@
 
 <p>  
   <%= session[:player_name] %> has <%= calculate_total(session[:player_cards]) %>
+</p>
+
+<p>
+  <%= session[:player_name] %> has $<%= session[:player_pot] %> and has bet $<%= session[:player_bet] %>.
 </p>
 
 <% if @show_hit_or_stay_buttons %>
